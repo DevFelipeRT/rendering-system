@@ -49,38 +49,109 @@ final class RenderingService implements RenderingServiceInterface
      */
     public function render(RenderableInterface $renderable): string
     {
+        // A top-level call is the first entry into this method for a given request.
+        // Nested calls (like @include) will reuse the existing active state.
         $isTopLevelCall = $this->activeState === null;
         if ($isTopLevelCall) {
             $this->activeState = $this->renderStateFactory->create();
         }
 
         try {
+            // Delegate the rendering logic based on the type of the renderable object.
             if ($renderable instanceof PageInterface) {
-                // STAGE 1: POPULATE
-                $this->currentStage = self::STAGE_POPULATE;
-                $this->executeRenderable($renderable);
-
-                // STAGE 2: PRESENT
-                $this->currentStage = self::STAGE_PRESENT;
-                $layoutName = $this->activeState->getParent() ?? $renderable->fileName();
-                
-                $data = $this->buildDataFor($renderable);
-                $renderer = $this->getRenderer($renderable);
-                
-                return $renderer->renderTemplate($layoutName, $data);
+                return $this->renderPage($renderable);
             }
             
+            // For simple renderables (like partials in an @include),
+            // ensure the stage is set to PRESENT if this is a top-level call.
             if ($isTopLevelCall) {
                 $this->currentStage = self::STAGE_PRESENT;
             }
             return $this->executeRenderable($renderable);
 
         } finally {
+            // Clean up the state only after the entire top-level operation is complete.
             if ($isTopLevelCall) {
                 $this->activeState = null;
                 $this->currentStage = self::STAGE_IDLE;
             }
         }
+    }
+
+    /**
+     * Orchestrates the two-stage rendering process for a Page object.
+     */
+    private function renderPage(PageInterface $page): string
+    {
+        // STAGE 1: POPULATE - Traverse the entire inheritance hierarchy to collect state.
+        $baseLayoutName = $this->runPopulationStage($page);
+
+        echo '<pre>';
+            var_dump($this->activeState);
+        echo '</pre>';
+
+        die('--- Fim da Depuração do Estágio POPULATE ---');
+        
+        // STAGE 2: PRESENT - Render the final base layout using the collected state.
+        return $this->runPresentationStage($page, $baseLayoutName);
+    }
+
+    /**
+     * Executes the POPULATE stage.
+     *
+     * This method traverses the @extends chain from the page's view upwards,
+     * executing each template to populate the RenderState with sections and stacks.
+     *
+     * @return string The filename of the final, top-level base layout.
+     */
+    private function runPopulationStage(PageInterface $page): string
+    {
+        $this->currentStage = self::STAGE_POPULATE;
+
+        // Build the data context for the page ONCE. This context, including the
+        // correctly configured PopulatingViewApi, will be passed up the entire
+        // inheritance chain.
+        $pageData = $this->buildDataFor($page);
+        
+        // Start the population process by "rendering" the page's own view template.
+        // This triggers the first @extends and populates the initial sections/stacks.
+        $this->pageRenderer->render($page, $pageData);
+        
+        $parentName = $this->activeState->getParent();
+        $finalLayoutName = $parentName ?? $page->view()->fileName();
+
+        // Now, loop through the parent layouts until we reach the root.
+        while ($parentName !== null) {
+            $this->activeState->setParent(null); // Reset for the next iteration.
+            
+            // Execute the parent layout, passing the same full data context.
+            $this->renderTemplate($parentName, $pageData);
+            
+            // Check if this parent extends another layout.
+            $parentName = $this->activeState->getParent();
+            if ($parentName) {
+                $finalLayoutName = $parentName; // Update the final layout name.
+            }
+        }
+
+        return $finalLayoutName;
+    }
+
+    /**
+     * Executes the PRESENT stage.
+     *
+     * This method renders the final base layout. The PresentingViewApi will now
+     * read from the populated RenderState to correctly output sections and stacks.
+     */
+    private function runPresentationStage(PageInterface $page, string $baseLayoutName): string
+    {
+        $this->currentStage = self::STAGE_PRESENT;
+
+        // Rebuild the data context, this time getting a PresentingViewApi.
+        $layoutData = $this->buildDataFor($page);
+        
+        // Render the final base layout template.
+        return $this->defaultRenderer->renderTemplate($baseLayoutName, $layoutData);
     }
 
     /**
@@ -95,13 +166,15 @@ final class RenderingService implements RenderingServiceInterface
         }
         
         try {
-            // Create a contextless ViewApi for basic functionalities, respecting the current stage.
-            $viewApi = $this->viewApiProvider->provideEmpty($this);
-
             $data = $templateData;
-            $data['viewApi'] = $viewApi;
+
+            // If a ViewApi isn't already provided (which it will be during the
+            // population chain), create a default, empty one.
+            if (!isset($data['viewApi'])) {
+                $viewApi = $this->viewApiProvider->provideEmpty($this);
+                $data['viewApi'] = $viewApi;
+            }
             
-            // The renderer's renderTemplate is a simple, low-level method.
             return $this->defaultRenderer->renderTemplate($templateFile, $data);
 
         } finally {
@@ -120,14 +193,14 @@ final class RenderingService implements RenderingServiceInterface
         $data = $this->buildDataFor($renderable);
         $renderer = $this->getRenderer($renderable);
         
-        if ($this->currentStage === self::STAGE_POPULATE) {
-            $renderer->render($renderable, $data);
-            return '';
-        }
-        
         return $renderer->render($renderable, $data);
     }
 
+    /**
+     * Prepares the complete data array for a given renderable.
+     * This involves creating the appropriate ViewApi (Populating or Presenting)
+     * and fetching the template data from the context builder.
+     */
     private function buildDataFor(RenderableInterface $renderable): array
     {
         $viewApi = $this->viewApiProvider->provideFor($renderable, $this);

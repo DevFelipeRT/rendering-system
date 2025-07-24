@@ -50,7 +50,7 @@ final class PopulatingViewApi extends AbstractViewApi
      */
     public function yieldSection(string $sectionName): string
     {
-        return '';
+        return $this->renderState->getSection($sectionName);
     }
 
     /**

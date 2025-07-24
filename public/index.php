@@ -7,9 +7,11 @@ require_once __DIR__ . '/../autoload.php';
 use Config\RenderingConfig;
 use Rendering\Infrastructure\RenderingKernel;
 
-$templatesDir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-$cacheDir = __DIR__ . DIRECTORY_SEPARATOR . 'cache';
-$resourcesDir = __DIR__ . DIRECTORY_SEPARATOR . 'resources';
+$projectRoot = dirname(__DIR__);
+$templatesDir = $projectRoot . DIRECTORY_SEPARATOR . 'templates';
+$cacheDir = $projectRoot . DIRECTORY_SEPARATOR . 'cache';
+$resourcesDir = $projectRoot . DIRECTORY_SEPARATOR . 'resources';
+
 $copyrightOwner = 'Rendering System';
 
 $config = new RenderingConfig($templatesDir, $cacheDir, $resourcesDir, $copyrightOwner);

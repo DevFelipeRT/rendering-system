@@ -85,12 +85,6 @@ final class RenderingService implements RenderingServiceInterface
     {
         // STAGE 1: POPULATE - Traverse the entire inheritance hierarchy to collect state.
         $baseLayoutName = $this->runPopulationStage($page);
-
-        echo '<pre>';
-            var_dump($this->activeState);
-        echo '</pre>';
-
-        die('--- Fim da Depuração do Estágio POPULATE ---');
         
         // STAGE 2: PRESENT - Render the final base layout using the collected state.
         return $this->runPresentationStage($page, $baseLayoutName);

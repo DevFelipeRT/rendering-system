@@ -6,17 +6,11 @@ namespace Rendering\Infrastructure\RenderingEngine\Api;
 
 /**
  * The ViewApi implementation for the state population stage.
- *
- * It extends the AbstractViewApi and implements the logic for directives that
- * write to the RenderState, such as defining hierarchy, sections, and stacks.
- * Methods related to the presentation stage are implemented as no-ops.
  */
 final class PopulatingViewApi extends AbstractViewApi
 {
     /**
      * {@inheritdoc}
-     *
-     * Declares the parent layout for the current template.
      */
     public function extend(string $layoutName): void
     {
@@ -25,8 +19,6 @@ final class PopulatingViewApi extends AbstractViewApi
 
     /**
      * {@inheritdoc}
-     *
-     * Starts capturing content for a named section.
      */
     public function startSection(string $sectionName): void
     {
@@ -35,8 +27,6 @@ final class PopulatingViewApi extends AbstractViewApi
 
     /**
      * {@inheritdoc}
-     *
-     * Stops capturing content for the last opened section.
      */
     public function stopSection(): void
     {
@@ -46,17 +36,17 @@ final class PopulatingViewApi extends AbstractViewApi
     /**
      * {@inheritdoc}
      *
-     * This method is a no-op during the population stage.
+     * During the POPULATE stage, this method delegates to the RenderState
+     * to create and register a unique placeholder for the yielded section.
+     * This ID is returned and embedded in the parent section's content.
      */
     public function yieldSection(string $sectionName): string
     {
-        return $this->renderState->getSection($sectionName);
+        return $this->renderState->registerYield($sectionName);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Starts buffering content for a named stack.
      */
     public function startPush(string $stackName): void
     {
@@ -65,8 +55,6 @@ final class PopulatingViewApi extends AbstractViewApi
 
     /**
      * {@inheritdoc}
-     *
-     * Stops buffering content and adds it to the appropriate stack.
      */
     public function stopPush(): void
     {
@@ -75,18 +63,15 @@ final class PopulatingViewApi extends AbstractViewApi
 
     /**
      * {@inheritdoc}
-     *
-     * This method is a no-op during the population stage.
      */
     public function renderStack(string $stackName): string
     {
+        // No-op during population
         return '';
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Determines if a block identified by a unique ID should be processed.
      */
     public function shouldRenderOnce(string $id): bool
     {

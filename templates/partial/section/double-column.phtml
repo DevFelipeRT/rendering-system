@@ -1,0 +1,69 @@
+{{--
+    Two Column Content & Media Section
+    Renders a text column and a media column using direct variables.
+    The order of the columns can be inverted.
+--}}
+@php
+    // Set column order classes based on a direct variable. Defaults to text on the left.
+    $layout = $column_order ?? 'text_left';
+    $textOrderClass = ($layout === 'text_right') ? 'order-lg-2' : 'order-lg-1';
+    $mediaOrderClass = ($layout === 'text_right') ? 'order-lg-1' : 'order-lg-2';
+@endphp
+
+<section class="content-media-section py-5">
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-4">
+            {{-- Text Content Column --}}
+            <div class="col-lg-6 {{ $textOrderClass }}">
+                <div class="text-content">
+                    @if (!empty($title))
+                        <h2 class="section-title">{{ $title }}</h2>
+                    @endif
+
+                    @if (!empty($subtitle))
+                        <p class="lead mb-4">{{ $subtitle }}</p>
+                    @endif
+
+                    @if (!empty($content))
+                        <div class="content-body">
+                            {{ $content }}
+                        </div>
+                    @endif
+
+                    @if (!empty($footer_text))
+                        <footer class="content-footer mt-4">
+                            <small>{{ $footer_text }}</small>
+                        </footer>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Media Content Column --}}
+            <div class="col-lg-6 {{ $mediaOrderClass }}">
+                <div class="media-content">
+                    {{-- The component will render based on which variable is provided (priority: image > partial > include) --}}
+                    @if (!empty($image_url))
+                        <img src="{{ $image_url }}" alt="{{ $image_alt ?? 'Image' }}" class="img-fluid rounded shadow">
+
+                    @elseif (!empty($partial->hasPartial($childPartial)))
+                        {{-- If a child partial is defined, render it --}}
+                        {{-- A nested partial is an external resource, so it's called via the parent $partial object --}}
+                        @partial($childPartial)
+
+                    @elseif (!empty($include_path))
+                        @include($include_path)
+
+                    @else
+                        {{-- Placeholder for when no media is defined --}}
+                        <div class="text-center text-muted p-5 border rounded">
+                            <p>No media content provided.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- You can create a specific CSS file for this section if needed --}}
+{{-- @css('partial/section/content_media_section') --}}

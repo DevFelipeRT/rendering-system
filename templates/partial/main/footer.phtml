@@ -1,0 +1,53 @@
+{{--
+  Main Footer Partial - Advanced Rendering System
+  This version uses a proportional grid with space-between distribution.
+--}}
+<footer class="footer bg-dark text-white pt-5 pb-4" role="contentinfo">
+    <div class="container">
+        {{--
+          The row distributes its columns with space between them.
+          - justify-content-between: Pushes the first column to the start, the last to the end, and distributes the remaining space evenly.
+        --}}
+        <div class="row justify-content-between g-4">
+
+            {{--
+              BRAND & SOCIAL COLUMN
+              - col-md-12: On tablets, takes full width to stack properly.
+              - col-lg-5: On desktops, takes a larger, proportional width.
+            --}}
+            <div class="col-md-12 col-lg-5 text-center text-md-start">
+                @include('partial/footer/brand')
+                <div class="mt-4">
+                    @include('partial/footer/social')
+                </div>
+            </div>
+
+            {{--
+              LINKS COLUMN
+              - col-md-6: On tablets, takes half the width.
+              - col-lg-auto: On desktops, shrinks to its content width, allowing for more flexible spacing.
+            --}}
+            <div class="col-md-6 col-lg-auto text-center text-md-start">
+                @include('partial/footer/links')
+            </div>
+
+            {{--
+              CONTACT COLUMN
+              - col-md-6: On tablets, takes the other half of the width.
+              - col-lg-auto: On desktops, also shrinks to its content width.
+            --}}
+            <div class="col-md-6 col-lg-auto text-center text-md-start">
+                @include('partial/footer/contact')
+            </div>
+
+        </div>
+
+        {{-- Copyright Section --}}
+        <div class="text-center text-white-50 border-top border-secondary pt-4 mt-4">
+            <span>{{ $copyrightNotice ?? '© ' . date('Y') . ' Rendering System. All Rights Reserved.' }}</span>
+        </div>
+    </div>
+</footer>
+
+{{-- Footer-specific styles --}}
+@css('partial/main/footer')

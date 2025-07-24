@@ -1,0 +1,121 @@
+/*
+ * Styles for a hero banner that fills the viewport below a fixed header.
+ * It is optimized for high contrast on dark or colorful backgrounds.
+ * Requires a global CSS variable '--header-height' for height calculation.
+ */
+.home-banner {
+    /* --- Customization Variables --- */
+    /* By changing these values, you can easily customize the banner's appearance. */
+
+    /* Layout & Sizing */
+    --banner-min-height: 650px;
+    --banner-padding-mobile: 4rem 0;
+    --header-height-fallback: 70px;
+
+    /* Colors & Background */
+    --banner-text-color: #ffffff;
+    --banner-subtitle-color: rgba(255, 255, 255, 0.9);
+
+    /* Typography */
+    --banner-title-font-size: 3.5rem;
+    --banner-title-font-size-mobile: 2.5rem;
+    --banner-title-font-weight: 700;
+    --banner-text-font-size: 1.2rem;
+    --banner-text-margin: 1rem 0 2rem;
+
+    /* Buttons */
+    --banner-btn-padding: 0.8rem 2rem;
+    --banner-btn-font-weight: 500;
+    --banner-btn-spacing: 0.5rem;
+    --banner-btn-gap-mobile: 1rem;
+    --banner-btn-width-mobile: 80%;
+    /* NOVO: Variáveis de cor para os botões */
+    --banner-btn-primary-bg: #00f5d4; /* Verde-água vibrante */
+    --banner-btn-primary-color: #0008A8;
+    --banner-btn-primary-bg-hover: #00d9be;
+    --banner-btn-secondary-color: #ffffff;
+    --banner-btn-secondary-bg-hover: #ffffff;
+    --banner-btn-secondary-color-hover: #0008A8; /* Cor escura do gradiente */
+
+    /* Image */
+    --banner-image-border-radius: 8px;
+
+    /* --- Base Styles --- */
+    height: 100vh;
+    min-height: var(--banner-min-height);
+    color: var(--banner-text-color);
+    display: flex;
+    align-items: center;
+}
+
+.home-banner .banner-title {
+    font-size: var(--banner-title-font-size);
+    font-weight: var(--banner-title-font-weight);
+}
+
+.home-banner .banner-text {
+    font-size: var(--banner-text-font-size);
+    margin: var(--banner-text-margin);
+    color: var(--banner-subtitle-color);
+}
+
+.home-banner .banner-buttons .btn {
+    padding: var(--banner-btn-padding);
+    font-weight: var(--banner-btn-font-weight);
+    margin-right: var(--banner-btn-spacing);
+    border-width: 2px; /* Adicionado para consistência visual */
+}
+
+/* NOVO: Regras para aplicar as variáveis de cor aos botões */
+.home-banner .btn-primary {
+    background-color: var(--banner-btn-primary-bg);
+    color: var(--banner-btn-primary-color);
+    border-color: var(--banner-btn-primary-bg);
+}
+
+.home-banner .btn-primary:hover {
+    background-color: var(--banner-btn-primary-bg-hover);
+    border-color: var(--banner-btn-primary-bg-hover);
+}
+
+.home-banner .btn-outline-light {
+    color: var(--banner-btn-secondary-color);
+    border-color: var(--banner-btn-secondary-color);
+}
+
+.home-banner .btn-outline-light:hover {
+    background-color: var(--banner-btn-secondary-bg-hover);
+    color: var(--banner-btn-secondary-color-hover);
+}
+
+.home-banner .banner-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--banner-image-border-radius);
+}
+
+
+/* --- Responsive Breakpoint: Mobile & Tablet --- */
+@media (max-width: 768px) {
+    .home-banner {
+        height: auto;
+        padding: var(--banner-padding-mobile);
+        text-align: center;
+    }
+
+    .home-banner .banner-title {
+        font-size: var(--banner-title-font-size-mobile);
+    }
+
+    .home-banner .banner-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--banner-btn-gap-mobile);
+    }
+
+    .home-banner .banner-buttons .btn {
+        width: var(--banner-btn-width-mobile);
+        margin-right: 0;
+    }
+}

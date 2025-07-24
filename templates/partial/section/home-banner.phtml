@@ -1,0 +1,43 @@
+{{--
+    Home Banner Template - Advanced Rendering System
+    Hero section for the home page with a left-aligned title, text, buttons, and an image on the left.
+
+    Usage Example (within your main template):
+    @include('_home_banner', [
+        'title' => 'Your Main Title Here',
+        'subtitle' => 'A brief and compelling description of your product or service.',
+        'primaryButtonText' => 'Learn More',
+        'primaryButtonUrl' => '/learn-more',
+        'secondaryButtonText' => 'Get Started',
+        'secondaryButtonUrl' => '/get-started',
+        'imageUrl' => '/assets/images/hero-image.png',
+        'imageAlt' => 'Description of the banner image'
+    ])
+--}}
+<section class="home-banner">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <div class="col-md-6 banner-content">
+                <h1 class="banner-title">
+                    {{ $title }}
+                </h1>
+                <p class="banner-text">
+                    {{ $subtitle }}
+                </p>
+                <div class="banner-buttons">
+                    <a href="{{ $primaryButtonUrl }}" class="btn btn-primary">{{ $primaryButtonText }}</a>
+                    <a href="{{ $secondaryButtonUrl }}" class="btn btn-outline-light">{{ $secondaryButtonText }}</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 image-column d-none d-md-block">
+                <img src="{{ $imageUrl }}" alt="{{ $imageAlt }}" class="img-fluid banner-image">
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{{-- Custom styles for the home banner --}}
+@css('partial/section/home-banner')

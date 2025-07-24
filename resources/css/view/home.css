@@ -1,0 +1,8 @@
+body {
+    background: #0008A8;
+}
+
+#app {
+    background: linear-gradient(135deg, #9900ff 10%, #0008A8 100%);
+    color: #ffffff;
+}

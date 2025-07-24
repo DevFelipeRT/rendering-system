@@ -1,0 +1,18 @@
+@extends('layout/main-layout')
+
+@section('content')
+    {{-- Render the header if it exists, passing its specific data --}}
+    @if ($page->header())
+        @partial('header')
+    @endif
+
+    {{-- Main content area that will be filled by the @section('content') directive --}}
+    <main class="flex-grow-1">
+        @yield('view-content')
+    </main>
+
+    {{-- Render the footer if it exists, passing its specific data --}}
+    @if ($page->footer())
+        @partial('footer')
+    @endif
+@endsection

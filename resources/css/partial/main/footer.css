@@ -1,0 +1,63 @@
+    /**
+ * Footer Styles - Advanced Rendering System
+ * Styles for the main application footer component.
+ */
+
+.footer {
+    /* A subtle dark gradient to match the header's aesthetic */
+    background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for the brand in the footer to ensure the primary color is applied */
+.footer .navbar-brand {
+    color: var(--bs-primary) !important;
+}
+
+/* Footer links styling */
+.footer-links .nav-link-footer {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block; /* Required for the transform to work correctly */
+}
+
+.footer-links .nav-link-footer:hover {
+    color: #ffffff;
+    transform: translateY(-2px); /* Subtle lift effect, consistent with the header */
+}
+
+/* Social media icons */
+.social-icons .social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    margin: 0 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-icons .social-icon:hover {
+    background-color: var(--bs-primary);
+    transform: scale(1.1) translateY(-3px); /* Highlight effect on hover */
+    color: white;
+}
+
+/* Copyright separator line styling */
+.footer .border-top.border-secondary {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Reduced motion support, consistent with the header */
+@media (prefers-reduced-motion: reduce) {
+    .footer-links .nav-link-footer,
+    .social-icons .social-icon {
+        transition: none;
+    }
+}

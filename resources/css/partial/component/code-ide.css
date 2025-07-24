@@ -1,0 +1,66 @@
+.code-ide {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    overflow: hidden; /* Garante que o conteúdo interno não vaze as bordas arredondadas */
+}
+
+.code-header {
+    background-color: #252526;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+.code-header .language {
+    font-size: 0.9em;
+    color: #b8b8b8;
+}
+
+.code-header .copy-button {
+    background: none;
+    color: #b8b8b8;
+    border: 1px solid #555;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.code-header .copy-button svg {
+    width: 14px;
+    height: 14px;
+}
+
+.code-header .copy-button:hover {
+    background-color: #333;
+    color: #eee;
+    border-color: #eee;
+}
+
+.code-block {
+    padding: 15px;
+    margin: 0;
+    overflow-x: auto; /* Permite rolagem horizontal para códigos longos */
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    white-space: pre-wrap; /* Quebra as linhas longas */
+}
+
+.code-block code {
+    display: block; /* Garante que o `code` ocupe toda a largura do `pre` */
+}
+
+/* Estilos de exemplo para linguagens (seriam expandidos por uma biblioteca de realce) */
+.language-php { /* Adicione regras específicas se necessário */ }
+.language-javascript { /* Adicione regras específicas se necessário */ }
+.language-html { /* Adicione regras específicas se necessário */ }
+.language-css { /* Adicione regras específicas se necessário */ }

@@ -1,0 +1,45 @@
+{{--
+    Cards Section Template - Advanced Rendering System
+    Dynamically renders card partials based on the $partials array.
+--}}
+<section class="cards-section py-5">
+    <div class="container">
+        {{-- Section Header with Title and Subtitle --}}
+        @if (!empty($title) || !empty($subtitle))
+            <div class="row justify-content-center text-center mb-2">
+                <div class="col-lg-8">
+                    @if (!empty($title))
+                        <h2 class="section-title">{{ $title }}</h2>
+                    @endif
+                    @if (!empty($subtitle))
+                        <p class="section-subtitle lead text-muted">{{ $subtitle }}</p>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        {{-- Cards Grid --}}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @if (isset($partial) && is_array($partial->partials()->all()))
+                @foreach ($partial->partials()->all() as $name => $card_partial)
+                    @php
+                        $shouldRender = str_contains(strtolower($name), 'card');
+                    @endphp
+                    @if ($shouldRender)
+                        <div class="col">
+                            {{-- Dynamically include the partial based on its name --}}
+                            @partial($name)
+                        </div>
+                    @endif
+                @endforeach
+            @else
+                <div class="col-12 text-center text-muted">
+                    <p>No card partials to display.</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</section>
+
+{{-- Custom styles for the cards section --}}
+@css('partial/section/cards_section')

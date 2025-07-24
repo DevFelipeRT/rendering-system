@@ -1,0 +1,15 @@
+{{-- Loading Indicator with Custom Icon and Animation --}}
+
+{{-- Link to the dedicated stylesheet for the loading indicator --}}
+@css('partial/main/loading-indicator.css')
+
+<div id="page-loader" class="page-loader">
+    <div class="loader-content">
+        {{-- Replaced the Bootstrap spinner with your custom icon --}}
+        <i class="bi bi-code-square loader-icon" aria-hidden="true"></i>
+        <p class="text-secondary mt-3 mb-0">Loading system...</p>
+    </div>
+</div>
+
+{{-- The associated script that controls the behavior --}}
+@js('partial/main/LoadingIndicator.js')

@@ -1,0 +1,29 @@
+/* Navigation links */
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.active { /* Adicionado .nav-link.active aqui */
+    color: var(--bs-primary) !important;
+    transform: translateY(-1px); /* Este é o estilo de "flutuação" */
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: var(--bs-primary);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}

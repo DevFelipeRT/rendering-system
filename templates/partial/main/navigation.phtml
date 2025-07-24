@@ -1,0 +1,40 @@
+{{--
+  Navigation Partial - Advanced Rendering System
+  Handles the entire collapsible navigation menu structure and link generation.
+--}}
+
+@php($navigationLinks = $links->all())
+
+{{-- The collapsible wrapper for the navigation menu --}}
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        @if (isset($navigationLinks))
+            {{-- Loop through each link in the $links array --}}
+            @foreach ($navigationLinks as $link)
+                {{-- Only render the link if its 'visible' property is true --}}
+                @if ($link->visible())
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium {{ $link->active() ? 'active' : '' }}" href="{{ $link->url() ?? '#' }}">
+                            @if ($link->iconClass())
+                                <i class="{{ $link->iconClass() }} me-1"></i>
+                            @endif
+                            {{ $link->label() ?? 'Link' }}
+                        </a>
+                    </li>
+                @endif
+            @endforeach
+        @else
+            {{-- Default fallback navigation --}}
+            <li class="nav-item">
+                <a class="nav-link fw-medium" href="/">
+                    <i class="bi bi-house me-1"></i>
+                    Home
+                </a>
+            </li>
+        @endif
+    </ul>
+</div>
+
+{{-- Navigation-specific styles and scripts --}}
+@css('partial/main/navigation.css')
+@js('partial/main/navigation')

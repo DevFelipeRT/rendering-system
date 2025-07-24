@@ -1,0 +1,55 @@
+{{--
+    Bootstrap Card Partial - Advanced Rendering System
+    A flexible and extensible content container.
+
+    Usage Example:
+    @include('partial/_card', [
+        'header' => 'Card Header Title', // Optional: Text or HTML for card header
+        'imageSrc' => 'https://via.placeholder.com/400x200', // Optional: Image source for card-img-top
+        'imageAlt' => 'Card image description', // Optional: Alt text for the image
+        'title' => 'Card Title', // Optional: Main title for the card body
+        'subtitle' => 'Card Subtitle', // Optional: Subtitle for the card body
+        'content' => '<p>Some quick example text to build on the card title and make up the bulk of the card\'s content.</p>', // Optional: Main content for the card body (HTML allowed)
+        'footer' => '<a href="#" class="btn btn-primary">Go somewhere</a>', // Optional: Text or HTML for card footer
+        'cardClass' => 'shadow-lg', // Optional: Custom classes for the .card container
+        'bodyClass' => 'text-center', // Optional: Custom classes for the .card-body
+        'headerClass' => 'bg-primary text-white', // Optional: Custom classes for the .card-header
+        'footerClass' => 'bg-light' // Optional: Custom classes for the .card-footer
+    ])
+--}}
+
+<div class="card {{ $cardClass ?? '' }}">
+    @if (isset($header))
+        <div class="card-header {{ $headerClass ?? '' }}">
+            {{ $header }}
+        </div>
+    @endif
+
+    @if (isset($imageSrc))
+        <img src="{{ $imageSrc }}" class="card-img-top" alt="{{ $imageAlt ?? '' }}">
+    @endif
+
+    <div class="card-body {{ $bodyClass ?? '' }}">
+        @if (isset($title))
+            <h5 class="card-title">{{ $title }}</h5>
+        @endif
+        @if (isset($subtitle))
+            <h6 class="card-subtitle mb-2 text-muted">{{ $subtitle }}</h6>
+        @endif
+        @if (isset($content))
+            <p>{{ $content }}</p>
+        @endif
+    </div>
+
+    @if (isset($footer))
+        <div class="card-footer {{ $footerClass ?? '' }}">
+            <a href="#" class="btn btn-primary">{{ $footer }}</a>
+        </div>
+    @endif
+</div>
+
+@once
+    @push('styles')
+        @css('partial/component/card.css')
+    @endpush
+@endonce

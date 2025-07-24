@@ -1,0 +1,26 @@
+/**
+ * Cards Section Styles
+ * A full-bleed section with a centered content container.
+ */
+.cards-section {
+  /* The background is applied directly to the section, which spans the full width. */
+  background: white;
+  padding: 4rem 0; /* Vertical spacing for the section. */
+}
+
+.cards-section .section-title {
+  color: var(--bs-dark-text-emphasis);
+}
+
+/* Adjusts the spacing (gutters) between the cards in the grid. */
+.cards-section .row.g-4 {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 1.5rem;
+}
+
+/* Reduces animations for users who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .cards-section {
+    transition: none;
+  }
+}

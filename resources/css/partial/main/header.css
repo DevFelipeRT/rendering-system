@@ -1,0 +1,138 @@
+/**
+ * Header Styles - Definitive Solution
+ * This version is designed to work with the corrected JavaScript.
+ * It uses position:fixed and targets the .header.scrolled class.
+ * IMPORTANT: Your HTML must NOT have the 'sticky-top' class.
+ */
+
+:root {
+  --header-height: 62px;
+  --header-transition-speed: 0.3s;
+}
+
+/* --- 1. Header Positioning and Base --- */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1030;
+  height: var(--header-height);
+  background-color: transparent;
+  transition: background-color var(--header-transition-speed) ease,
+              box-shadow var(--header-transition-speed) ease;
+}
+
+/* --- THE KEY TO THE BLUR EFFECT --- */
+.header.scrolled {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+}
+
+.header .navbar {
+  background: transparent;
+}
+
+
+/* --- 2. Links and Icons Styling --- */
+.header .navbar-brand {
+    transition: transform var(--header-transition-speed) ease, color var(--header-transition-speed) ease;
+}
+.header .navbar-brand:hover {
+    transform: translateY(-2px);
+}
+
+/* Links need a relative position for the underline effect */
+.header .nav-link {
+    position: relative;
+}
+
+.header .nav-link, .header .navbar-toggler-icon {
+  transition: color var(--header-transition-speed) ease, filter var(--header-transition-speed) ease;
+}
+
+/* --- CORREÇÃO: Lógica do sublinhado refeita para maior robustez --- */
+/* The underline pseudo-element for hover/active states */
+.header .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    /* REQUISITO: A cor padrão do sublinhado é branca para o estado inicial */
+    background-color: #ffffff;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+
+/* Altera a cor do sublinhado para azul quando o header está com scroll */
+.header.scrolled .nav-link::after {
+    background-color: var(--bs-primary);
+}
+
+/* Mostra o sublinhado no hover ou quando ativo, alterando a sua escala */
+.header .nav-link:hover::after,
+.header .nav-link.active::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+
+/* --- 3. Header States --- */
+
+/* Initial State (Transparent) */
+.header:not(.scrolled) .navbar-brand {
+  color: #ffffff;
+}
+.header:not(.scrolled) .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+.header:not(.scrolled) .nav-link.active,
+.header:not(.scrolled) .nav-link:hover {
+  color: #ffffff !important;
+}
+
+.header:not(.scrolled) .navbar-toggler-icon {
+  filter: brightness(0) invert(1);
+}
+
+
+/* Scrolled State (Glass Effect) */
+.header.scrolled .navbar-brand {
+    color: var(--bs-primary);
+}
+.header.scrolled .nav-link {
+    color: var(--bs-navbar-color);
+}
+.header.scrolled .nav-link:hover,
+.header.scrolled .nav-link.active {
+    color: var(--bs-navbar-active-color);
+}
+
+.header.scrolled .navbar-toggler-icon {
+  filter: none;
+}
+
+
+/* --- 4. Mobile Menu --- */
+@media (max-width: 991.98px) {
+  .navbar-collapse.show,
+  .navbar-collapse.collapsing {
+    background-color: #ffffff;
+    padding: 1rem;
+    margin: 0.5rem -0.75rem -0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .navbar-collapse .nav-link {
+     color: var(--bs-navbar-color);
+  }
+  /* Hide the underline effect on mobile to prevent layout issues */
+  .header .nav-link::after {
+      display: none;
+  }
+}

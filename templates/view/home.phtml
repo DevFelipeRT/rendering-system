@@ -1,5 +1,7 @@
 @extends('layout/view-layout')
 
+@php($imagePath = dirname(__DIR__) . '/resources/image/home/laptop.png')
+
 @section('view-content')
     @include('partial/section/home-banner', [
             'title' => 'Your Main Title Here',
@@ -8,7 +10,7 @@
             'primaryButtonUrl' => '/learn-more',
             'secondaryButtonText' => 'Get Started',
             'secondaryButtonUrl' => '/get-started',
-            'imageUrl' => '{{ dirname(__DIR__) . /resources/image/home/laptop.png }}',
+            'imageUrl' => $imagePath,
             'imageAlt' => 'Description of the banner image'
         ])
     @partial('cardsSection')

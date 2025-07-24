@@ -49,6 +49,21 @@ interface RenderStateInterface
     public function getSection(string $sectionName): string;
 
     /**
+     * Generates and registers a unique placeholder for a nested @yield call.
+     *
+     * @param string $sectionName The name of the section to be yielded.
+     * @return string The unique placeholder ID to be injected into the parent section's content.
+     */
+    public function registerYield(string $sectionName): string;
+
+    /**
+     * Retrieves the map of registered yield placeholders.
+     *
+     * @return array<string, string> A map of [placeholderId => sectionName].
+     */
+    public function getYieldPlaceholders(): array;
+
+    /**
      * Starts buffering content for a named stack.
      *
      * @param string $stackName The name of the stack.

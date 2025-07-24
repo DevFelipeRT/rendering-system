@@ -12,49 +12,40 @@ use Rendering\Infrastructure\Contract\RenderingEngine\State\RenderStateInterface
  *
  * This class is the central repository for all data collected during the
  * POPULATE rendering stage, including the layout inheritance chain, the
- * content of all defined sections, and the content pushed to stacks.
+ * content of all defined sections, and the content pushed to stacks. It also
+ * manages the registration of placeholders for nested section yields.
  */
 final class RenderState implements RenderStateInterface
 {
-    /**
-     * Stores the name of the parent layout declared by an @extends directive.
-     */
+    /** Stores the name of the parent layout declared by an @extends directive. */
     private ?string $parentLayout = null;
 
-    /**
-     * A stack to keep track of which sections are currently being captured.
-     * @var string[]
-     */
+    /** @var string[] A stack to keep track of which sections are currently being captured. */
     private array $sectionStack = [];
 
-    /**
-     * Stores the captured content for each named section.
-     * @var array<string, string>
-     */
+    /** @var array<string, string> Stores the captured content for each named section. */
     private array $sections = [];
 
-    /**
-     * Stores content for named stacks.
-     * @var array<string, string[]>
-     */
+    /** @var array<string, string[]> Stores content for named stacks. */
     private array $stacks = [];
 
-    /**
-     * Tracks the hierarchy of active push operations.
-     * @var string[]
-     */
+    /** @var string[] Tracks the hierarchy of active push operations. */
     private array $pushStack = [];
 
-    /**
-     * Stores the hashes of @once blocks that have already been rendered.
-     * @var array<string, true>
-     */
+    /** @var array<string, true> Stores the hashes of @once blocks that have already been rendered. */
     private array $onceHashes = [];
+
+    /**
+     * Stores a map of unique placeholder IDs to the section names they represent.
+     * This is used to resolve nested @yield calls.
+     * @var array<string, string>
+     */
+    private array $yieldPlaceholders = [];
 
     /**
      * {@inheritdoc}
      */
-    public function setParent(string|null $layoutName): void
+    public function setParent(?string $layoutName): void
     {
         $this->parentLayout = $layoutName;
     }
@@ -89,12 +80,33 @@ final class RenderState implements RenderStateInterface
         $this->sections[$lastSection] = ob_get_clean();
     }
 
-/**
+    /**
      * {@inheritdoc}
      */
     public function getSection(string $sectionName): string
     {
         return $this->sections[$sectionName] ?? '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerYield(string $sectionName): string
+    {
+        // Create a highly unique placeholder ID that is safe for string replacement.
+        $placeholderId = '##YIELD_PLACEHOLDER_' . hash('sha256', uniqid($sectionName, true)) . '##';
+
+        $this->yieldPlaceholders[$placeholderId] = $sectionName;
+
+        return $placeholderId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getYieldPlaceholders(): array
+    {
+        return $this->yieldPlaceholders;
     }
 
     /**

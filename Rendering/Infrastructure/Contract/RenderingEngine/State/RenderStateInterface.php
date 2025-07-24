@@ -17,9 +17,9 @@ interface RenderStateInterface
     /**
      * Sets the parent layout for the current inheritance chain.
      *
-     * @param string $layoutName The name of the parent layout.
+     * @param string|null $layoutName The name of the parent layout.
      */
-    public function setParent(string $layoutName): void;
+    public function setParent(string|null $layoutName): void;
 
     /**
      * Retrieves the last declared parent layout.

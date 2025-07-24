@@ -54,7 +54,7 @@ final class RenderState implements RenderStateInterface
     /**
      * {@inheritdoc}
      */
-    public function setParent(string $layoutName): void
+    public function setParent(string|null $layoutName): void
     {
         $this->parentLayout = $layoutName;
     }

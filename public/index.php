@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../autoload.php';
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+require_once dirname(__DIR__) . '/../autoload.php';
 
 use Config\RenderingConfig;
 use Rendering\Infrastructure\RenderingKernel;

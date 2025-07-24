@@ -1,0 +1,55 @@
+#############################################
+#  Pasta pública (public/)
+#############################################
+
+# Arquivo padrão
+DirectoryIndex index.php
+
+# Impede listagem de diretórios
+Options -Indexes
+
+# --- 1) BLOQUEIOS ---------------------------------
+
+# Bloqueia arquivos/pastas ocultas (.git, .env, etc.)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Bloqueia todos os arquivos PHP por padrão, exceto se explicitamente liberados
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
+
+# Libera o index.php (para reescrita funcionar)
+<Files "index.php">
+    Require all granted
+</Files>
+
+# Libera o acesso à API se for necessário (exemplo opcional)
+# <Files "api.php">
+#     Require all granted
+# </Files>
+
+# --- 2) LIBERAÇÃO DE ESTÁTICOS --------------------
+
+<FilesMatch "\.(js|css|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot|otf)$">
+    Require all granted
+</FilesMatch>
+
+# --- 3) CABEÇALHOS DE SEGURANÇA -------------------
+
+<IfModule mod_headers.c>
+    Header always append X-Frame-Options "SAMEORIGIN"
+    Header set    X-Content-Type-Options "nosniff"
+    Header set    X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# --- 4) REESCRITA DE URL --------------------------
+
+RewriteEngine On
+RewriteBase /
+
+# Redireciona tudo para index.php, exceto arquivos e diretórios reais
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

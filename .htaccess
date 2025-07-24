@@ -1,10 +1,42 @@
+#############################################
+#  Raiz do domínio (public_html)
+#############################################
+
 RewriteEngine On
+RewriteBase /
 
-# Serve static files directly
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^resources/(.*)$ resources/$1 [L]
+# 0) Redireciona qualquer acesso direto a /public/ para a raiz
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/public/ [NC]
+RewriteRule ^public(/.*)?$ / [R=301,L]
 
-# Route everything else to index.php
+# 1a) Redireciona a raiz ("/") para index.php dentro de /public
+RewriteRule ^$ public/index.php [L]
+
+# 1b) Redireciona qualquer requisição que não seja para arquivo ou pasta real para /public
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^(.*)$ public/$1 [L]
+
+# 2) Impede listagem de diretórios
+Options -Indexes
+
+# 3) Bloqueio de arquivos sensíveis
+<FilesMatch "(^\.env|composer\.(json|lock)|\.git|\.htaccess|php\.ini|README\.md|LICENSE)">
+    Require all denied
+</FilesMatch>
+
+# 4) Bloqueio de arquivos ocultos
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# 5) Cabeçalhos de segurança
+<IfModule mod_headers.c>
+    Header always append X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# 6) Forçar HTTPS (opcional)
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

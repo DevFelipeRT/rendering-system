@@ -14,6 +14,7 @@ class WebPathDetector
     private readonly string $projectRoot;
     private readonly string $documentRoot;
     private readonly UrlDetector $urlDetector;
+    private ?string $cachedBasePath = null;
 
     /**
      * @param string|null $projectRoot The absolute filesystem path to the project root
@@ -32,35 +33,105 @@ class WebPathDetector
 
     /**
      * Detects the base web path for the application.
+     * Versão otimizada para produção.
      *
      * @return string The detected base web path
-     * @throws RuntimeException If the base path cannot be detected
      */
     public function detectBasePath(): string
+    {
+        if ($this->cachedBasePath !== null) {
+            return $this->cachedBasePath;
+        }
+
+        // Configuração específica para domínios conhecidos
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        
+        // Se for um domínio específico na raiz, retorna vazio
+        if (in_array($host, ['renderingsystem.devfelipert.com.br'])) {
+            $this->cachedBasePath = '';
+            return $this->cachedBasePath;
+        }
+
+        // Para desenvolvimento local
+        if (str_contains($host, 'localhost') || str_contains($host, '127.0.0.1')) {
+            return $this->detectLocalBasePath();
+        }
+
+        // Método 1: Usar SCRIPT_NAME (mais confiável em produção)
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+        if (!empty($scriptName)) {
+            $pathParts = explode('/', trim($scriptName, '/'));
+            
+            // Remove o arquivo (index.php)
+            if (!empty($pathParts) && str_contains(end($pathParts), '.php')) {
+                array_pop($pathParts);
+            }
+            
+            // Remove 'public' se for o último diretório
+            if (!empty($pathParts) && end($pathParts) === 'public') {
+                array_pop($pathParts);
+            }
+            
+            if (!empty($pathParts)) {
+                $this->cachedBasePath = '/' . implode('/', $pathParts);
+                return $this->cachedBasePath;
+            }
+        }
+
+        // Método 2: Usar REQUEST_URI
+        if (!empty($_SERVER['REQUEST_URI'])) {
+            $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            if ($requestUri && $requestUri !== '/') {
+                $pathParts = explode('/', trim($requestUri, '/'));
+                
+                // Remove 'public' se estiver no final
+                if (!empty($pathParts) && end($pathParts) === 'public') {
+                    array_pop($pathParts);
+                }
+                
+                // Se ainda temos partes, usar como base path
+                if (!empty($pathParts)) {
+                    // Para produção, muitas vezes é melhor assumir raiz
+                    // a menos que claramente seja um subdiretório
+                    if (count($pathParts) === 1 && !str_contains($pathParts[0], '.')) {
+                        $this->cachedBasePath = '/' . $pathParts[0];
+                        return $this->cachedBasePath;
+                    }
+                }
+            }
+        }
+
+        // Fallback: assumir raiz
+        $this->cachedBasePath = '';
+        return $this->cachedBasePath;
+    }
+
+    /**
+     * Detecção específica para ambiente local
+     */
+    private function detectLocalBasePath(): string
     {
         // Normalize paths for comparison
         $normalizedProjectRoot = str_replace('\\', '/', $this->projectRoot);
         $normalizedDocRoot = str_replace('\\', '/', $this->documentRoot);
 
-        // Calculate the relative path from document root to project root
-        if (str_starts_with($normalizedProjectRoot, $normalizedDocRoot)) {
+        // Calculate relative path from document root to project root
+        if (!empty($normalizedDocRoot) && str_starts_with($normalizedProjectRoot, $normalizedDocRoot)) {
             $relativePath = substr($normalizedProjectRoot, strlen($normalizedDocRoot));
-            return '/' . ltrim($relativePath, '/');
-        }
-
-        // Use alternative detection methods
-        $scriptPath = str_replace('\\', '/', dirname($_SERVER['SCRIPT_FILENAME'] ?? ''));
-        $scriptName = dirname($_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '');
-
-        if (!empty($scriptPath) && !empty($scriptName) && str_ends_with($scriptPath, $scriptName)) {
-            $basePath = substr($scriptPath, 0, -strlen($scriptName));
-            if (str_starts_with($normalizedProjectRoot, $basePath)) {
-                $relativePath = substr($normalizedProjectRoot, strlen($basePath));
-                return '/' . ltrim($relativePath, '/');
+            $basePath = '/' . ltrim($relativePath, '/');
+            
+            // Se o path for apenas '/', significa que estamos na raiz
+            if ($basePath === '/') {
+                $basePath = '';
             }
+            
+            $this->cachedBasePath = $basePath;
+            return $this->cachedBasePath;
         }
 
-        throw new RuntimeException('Unable to detect base web path for the application');
+        // Fallback para local
+        $this->cachedBasePath = '';
+        return $this->cachedBasePath;
     }
 
     /**
@@ -74,6 +145,11 @@ class WebPathDetector
         $baseUrl = $this->urlDetector->detectBaseUrl();
         $basePath = $this->detectBasePath();
         
+        // Se basePath estiver vazio, retorna apenas a baseUrl
+        if (empty($basePath)) {
+            return $baseUrl;
+        }
+        
         return rtrim($baseUrl, '/') . $basePath;
     }
 
@@ -84,7 +160,8 @@ class WebPathDetector
      */
     public function getResourcesWebPath(): string
     {
-        return $this->detectBasePath() . '/resources';
+        $basePath = $this->detectBasePath();
+        return $basePath . '/resources';
     }
 
     /**
@@ -112,7 +189,9 @@ class WebPathDetector
 
         if (str_starts_with($normalizedPath, $normalizedRoot)) {
             $relativePath = substr($normalizedPath, strlen($normalizedRoot));
-            return $this->detectBasePath() . '/' . ltrim($relativePath, '/');
+            $basePath = $this->detectBasePath();
+            
+            return $basePath . '/' . ltrim($relativePath, '/');
         }
 
         throw new RuntimeException("Cannot convert path to web path: {$absolutePath}");
@@ -170,5 +249,50 @@ class WebPathDetector
     public function getUrlDetector(): UrlDetector
     {
         return $this->urlDetector;
+    }
+
+    /**
+     * Force a specific base path (useful for production configuration)
+     *
+     * @param string $basePath The base path to force
+     */
+    public function forceBasePath(string $basePath): void
+    {
+        $this->cachedBasePath = $basePath;
+    }
+}
+
+// Classe UrlDetector atualizada para ser mais robusta
+final class UrlDetector
+{
+    /**
+     * Detects the full base URL, including scheme and host.
+     *
+     * @return string The detected base URL (e.g., "https://example.com").
+     * @throws RuntimeException If the host name cannot be determined from the environment.
+     */
+    public function detectBaseUrl(): string
+    {
+        // Verifica múltiplos headers para o host
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        
+        if (empty($host)) {
+            throw new RuntimeException('Unable to determine HTTP host from server environment.');
+        }
+
+        // Detecta o esquema de forma mais robusta
+        $scheme = 'http';
+        
+        // Verifica HTTPS de várias formas
+        if (
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ||
+            (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+        ) {
+            $scheme = 'https';
+        }
+
+        return "{$scheme}://{$host}";
     }
 }

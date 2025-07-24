@@ -62,3 +62,5 @@ _ide_helper.php
 deploy.php
 deploy.log
 .deploy/
+
+.htaccess

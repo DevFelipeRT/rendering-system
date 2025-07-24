@@ -6,80 +6,108 @@ namespace Rendering\Infrastructure\RenderingEngine\Api;
 
 /**
  * The ViewApi implementation for the final presentation stage.
- *
- * It extends the AbstractViewApi and implements the logic for directives that
- * read from the RenderState to output the final content, such as yielding
- * sections and rendering stacks. Methods related to the population stage are
- * inherited as no-ops from the abstract parent.
  */
 final class PresentingViewApi extends AbstractViewApi
 {
     /**
+     * A cache to store the fully resolved content of sections to avoid re-processing.
+     * @var array<string, string>
+     */
+    private array $resolvedSectionsCache = [];
+
+    /**
      * {@inheritdoc}
-     *
-     * Throws a LogicException as @extend is not allowed during the presentation stage.
      */
     public function extend(string $layoutName): void
     {
-        // This method is a no-op during the presentation stage.
-        // Optionally, throw an exception for stricter error checking.
-        // throw new \LogicException('@extend cannot be called during the presentation stage.');
+        // No-op during presentation
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Throws a LogicException as @section is not allowed during the presentation stage.
      */
     public function startSection(string $sectionName): void
     {
-        // This method is a no-op during the presentation stage.
+        // No-op during presentation
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Throws a LogicException as @endsection is not allowed during the presentation stage.
      */
     public function stopSection(): void
     {
-        // This method is a no-op during the presentation stage.
+        // No-op during presentation
     }
 
     /**
      * {@inheritdoc}
      *
-     * Renders the content of a named section from the populated state.
+     * Renders the final, fully-composed content of a named section.
+     * This optimized method relies on a cache to prevent infinite recursion and
+     * uses a single, high-performance string replacement operation.
      */
     public function yieldSection(string $sectionName): string
     {
-        return $this->renderState->getSection($sectionName);
+        // 1. (GUARD & CACHE HIT) If this section has already been fully resolved,
+        //    return it immediately. This is the base case for the recursion.
+        if (isset($this->resolvedSectionsCache[$sectionName])) {
+            return $this->resolvedSectionsCache[$sectionName];
+        }
+
+        // 2. Get the raw content of the section, which may contain placeholders.
+        $content = $this->renderState->getSection($sectionName);
+
+        // 3. Find which placeholders are actually inside this specific content string.
+        //    This avoids trying to replace placeholders that don't exist here.
+        $placeholdersToReplace = [];
+        foreach ($this->renderState->getYieldPlaceholders() as $id => $nestedSection) {
+            if (str_contains($content, $id)) {
+                $placeholdersToReplace[$id] = $nestedSection;
+            }
+        }
+
+        // 4. If there's nothing to replace in this specific content, cache and return it.
+        if (empty($placeholdersToReplace)) {
+            return $this->resolvedSectionsCache[$sectionName] = $content;
+        }
+        
+        // 5. Prepare for a single, high-performance replacement.
+        $search = [];
+        $replace = [];
+
+        foreach ($placeholdersToReplace as $placeholderId => $nestedSectionName) {
+            $search[] = $placeholderId;
+            // Recursively call to get the fully resolved content of the nested section.
+            // The cache check at the beginning (step 1) is the crucial guard
+            // that protects this from the original infinite loop error.
+            $replace[] = $this->yieldSection($nestedSectionName);
+        }
+        
+        // 6. Perform a single, fast replacement for all found placeholders.
+        $resolvedContent = str_replace($search, $replace, $content);
+
+        // 7. Cache the final, fully resolved result and return it.
+        return $this->resolvedSectionsCache[$sectionName] = $resolvedContent;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Throws a LogicException as @push is not allowed during the presentation stage.
      */
     public function startPush(string $stackName): void
     {
-        // This method is a no-op during the presentation stage.
+        // No-op during presentation
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Throws a LogicException as @endpush is not allowed during the presentation stage.
      */
     public function stopPush(): void
     {
-        // This method is a no-op during the presentation stage.
+        // No-op during presentation
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Renders the complete content of a named stack from the populated state.
      */
     public function renderStack(string $stackName): string
     {
@@ -88,13 +116,10 @@ final class PresentingViewApi extends AbstractViewApi
 
     /**
      * {@inheritdoc}
-     *
-     * This method is a no-op during the presentation stage.
      */
     public function shouldRenderOnce(string $id): bool
     {
-        // @once directives are only evaluated during the population stage.
-        // Returning false prevents the block from ever rendering in this stage.
+        // No-op during presentation
         return false;
     }
 }

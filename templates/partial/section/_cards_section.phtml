@@ -42,4 +42,8 @@
 </section>
 
 {{-- Custom styles for the cards section --}}
-@css('partial/section/cards_section')
+@once
+    @push('styles')
+        @css('partial/section/cards_section')
+    @endpush
+@endonce

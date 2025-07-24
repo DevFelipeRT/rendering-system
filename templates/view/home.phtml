@@ -1,7 +1,6 @@
 @extends('layout/view-layout')
 
 @section('view-content')
-    @css('view/home')
     @include('partial/section/home-banner', [
             'title' => 'Your Main Title Here',
             'subtitle' => 'A brief and compelling description of your product or service.',
@@ -15,3 +14,9 @@
     @partial('cardsSection')
     @partial('doubleColumnSection')
 @endsection
+
+@once
+    @push('styles')
+        @css('view/home')
+    @endpush
+@endonce

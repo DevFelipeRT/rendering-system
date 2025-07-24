@@ -50,4 +50,8 @@
 </footer>
 
 {{-- Footer-specific styles --}}
-@css('partial/main/footer')
+@once
+    @push('styles')
+        @css('partial/main/footer')
+    @endpush
+@endonce

@@ -40,4 +40,8 @@
 </section>
 
 {{-- Custom styles for the home banner --}}
-@css('partial/section/home-banner')
+@once
+    @push('styles')
+        @css('partial/section/home-banner')
+    @endpush
+@endonce

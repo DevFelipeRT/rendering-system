@@ -36,5 +36,11 @@
 </div>
 
 {{-- Navigation-specific styles and scripts --}}
-@css('partial/main/navigation.css')
-@js('partial/main/navigation')
+@once
+    @push('styles')
+        @css('partial/main/navigation')
+    @endpush
+    @push('scripts')
+        @js('partial/main/navigation')
+    @endpush
+@endonce

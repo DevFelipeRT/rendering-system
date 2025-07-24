@@ -34,5 +34,11 @@
 </header>
 
 {{-- Header-specific styles and scripts --}}
-@css('partial/main/header')
-@js('partial/main/header')
+@once
+    @push('styles')
+        @css('partial/main/header')
+    @endpush
+    @push('scripts')
+        @js('partial/main/header')
+    @endpush
+@endonce

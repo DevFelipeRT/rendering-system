@@ -33,25 +33,25 @@ $navigationLinks = [
     ],
     [
         'label' => 'Features',
-        'url' => '/features',
+        'url' => '/',
         'visible' => true,
         'active' => false,
     ],
     [
         'label' => 'Documentation',
-        'url' => '/documentation',
+        'url' => '/',
         'visible' => true,
         'active' => false,
     ],
     [
         'label' => 'Templates',
-        'url' => '/templates',
+        'url' => '/',
         'visible' => true,
         'active' => false,
     ],
     [
         'label' => 'GitHub',
-        'url' => 'https://github.com/rendering-system',
+        'url' => 'https://github.com/DevFelipeRT/rendering-system',
         'visible' => true,
         'active' => false,
     ]

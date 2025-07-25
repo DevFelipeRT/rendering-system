@@ -20,7 +20,7 @@ $copyrightOwner = 'Rendering System';
 
 $config = new RenderingConfig($templatesDir, $cacheDir, $resourcesDir, $copyrightOwner);
 
-$kernel = new RenderingKernel($config, true);
+$kernel = new RenderingKernel($config);
 $renderer = $kernel->renderer();
 
 // Define navigation links for presentation page

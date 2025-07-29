@@ -40,7 +40,7 @@ final class SectionCompiler extends AbstractDirectiveCompiler
      */
     protected function buildParameterizedReplacement(string $name, string $expression): string
     {
-        $parts = str_getcsv($expression, ',', "'");
+        $parts = str_getcsv($expression, ',', "'", '\\');
         $sectionName = trim($parts[0]);
         $sectionValue = isset($parts[1]) ? trim($parts[1]) : null;
 
